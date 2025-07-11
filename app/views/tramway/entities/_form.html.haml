@@ -1,0 +1,9 @@
+- action = controller.action_name.in?([ "new", "create" ]) ? :create : :update
+= tramway_form_for @entity_form, url: url_for(controller: 'admin/clients', action:), method: (action == :create ? :post : :patch) do |f|
+  = component 'forms/errors', record: @client
+
+  = f.text_field :title, label: Client.human_attribute_name(:title)
+
+  .flex.justify-end
+    = f.submit t('actions.save')
+    = component 'back_button'

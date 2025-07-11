@@ -9,8 +9,16 @@ module Tramway
     include Tramway::Decorators::ClassHelper
     include Tramway::Helpers::ComponentHelper
 
-    def page_title
+    def index_page_title
       @model_class.model_name.human.pluralize # rubocop:disable Rails/HelperInstanceVariable
+    end
+
+    def create_page_title(model:)
+      t('actions.create', model: model.model_name)
+    end
+
+    def update_page_title(model:)
+      t('actions.update', model: model.model_name)
     end
   end
 end
