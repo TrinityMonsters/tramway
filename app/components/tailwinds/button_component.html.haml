@@ -1,0 +1,4 @@
+- if method == :get
+  = link_to text, path, class: "btn btn-primary bg-#{color}-500 hover:bg-#{color}-700 dark:bg-#{color}-600 dark:hover:bg-#{color}-800 dark:text-gray-300 text-white font-bold rounded-sm inline-block ml-2 px-1 first:ml-0 h-fit #{size_classes}", **options
+- else
+  = button_to text, path, method:, class: "btn btn-primary cursor-pointer bg-#{color}-500 hover:bg-#{color}-700 dark:bg-#{color}-600 dark:hover:bg-#{color}-800 dark:text-gray-300 text-white font-bold rounded-sm inline-block #{size_classes}", **options

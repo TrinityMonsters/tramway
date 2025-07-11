@@ -11,14 +11,16 @@ module Tramway
       attribute? :pages, Types::Array.of(Tramway::Configs::Entities::Page).default([].freeze)
       attribute? :route, Tramway::Configs::Entities::Route
 
+      DEFAULT_ROUTES = [ :index, :create, :update, :show, :destroy ]
+
       # Route Struct contains implemented in Tramway CRUD and helpful routes for the entity
-      RouteStruct = Struct.new(:index)
+      RouteStruct = Struct.new(*DEFAULT_ROUTES)
 
       # HumanName Struct contains human names forms for the entity
       HumanNameStruct = Struct.new(:single, :plural)
 
       def routes
-        RouteStruct.new(route_helper_method)
+        RouteStruct.new(*route_helper_method)
       end
 
       def human_name
@@ -51,22 +53,24 @@ module Tramway
       end
 
       def route_helper_method
-        underscored_name = name.parameterize.pluralize.underscore
+        DEFAULT_ROUTES.map do |action_name|
+          if page_set?(action_name)
+            method_name = if page_set?(action_name) || route.blank?
+                            page(action_name).default_route_method(name)
+                          else
+                            route.helper_method_by(underscored_name)
+                          end
 
-        method_name = if set_page?(:index) || route.blank?
-                        "#{underscored_name}_path"
-                      else
-                        route.helper_method_by(underscored_name)
-                      end
-
-        route_helper_engine.routes.url_helpers.public_send(method_name)
+            route_helper_engine.routes.url_helpers.public_send(method_name)
+          end
+        end
       end
 
       def route_helper_engine
-        set_page?(:index) ? Tramway::Engine : Rails.application
+        page_set?(:index) ? Tramway::Engine : Rails.application
       end
 
-      alias set_page? page
+      alias page_set? page
     end
   end
 end
