@@ -11,10 +11,18 @@ module Tramway
 
         if form.present?
           form
-        elsif namespace.present?
-          "#{namespace.to_s.camelize}::#{object_class}Form".constantize
         else
-          "#{object_class}Form".constantize
+          klass_name = if namespace.present?
+                         "#{namespace.to_s.camelize}::#{object_class}Form"
+                       else
+                         "#{object_class}Form"
+                       end
+
+          if klass_name.safe_constantize
+            klass_name.constantize
+          else
+            raise "You should define #{klass_name} class in app/forms directory"
+          end
         end
       end
     end

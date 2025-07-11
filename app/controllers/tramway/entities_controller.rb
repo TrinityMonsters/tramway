@@ -10,14 +10,18 @@ module Tramway
     helper Tramway::ApplicationHelper
     include Rails.application.routes.url_helpers
 
+    before_action :set_namespace, only: [:index, :new]
+
     def index
       @entities = if entity.page(:index).scope.present?
                     model_class.public_send(entity.page(:index).scope)
                   else
                     model_class.order(id: :desc)
                   end.page(params[:page])
+    end
 
-      @namespace = entity.route&.namespace
+    def new
+      @entity_form = Tramway::Forms::ClassHelper.form_class(model_class.new, nil, @namespace)
     end
 
     private
@@ -28,6 +32,10 @@ module Tramway
 
     def entity
       @entity ||= Tramway.config.entities.find { |e| e.name == params[:entity][:name] }
+    end
+
+    def set_namespace
+      @namespace = entity.route&.namespace
     end
   end
 end

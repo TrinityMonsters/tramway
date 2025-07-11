@@ -12,7 +12,7 @@
       = paginate @entities, custom_path_method: "#{@model_class.model_name.plural}_path"
   .flex.justify-end.mt-2
     - if @entity.page(:create).present?
-      = component 'tailwinds/button', text: t('actions.create'), method: :post, path: @entity.routes.create
+      = component 'tailwinds/button', text: t('actions.create'), path: @entity.routes.create
     = decorator.constantize.index_header_content.call(@entities) if decorator.constantize.index_header_content.present?
 
   - if list_attributes.empty?
