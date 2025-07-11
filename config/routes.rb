@@ -6,8 +6,19 @@ Tramway::Engine.routes.draw do
     resource_name = segments.pop          
 
     define_resource = proc do
+      entity_routes = entity.pages.map do |page|
+        case page.action.to_sym
+        when :create
+          [:new, :create]
+        when :update
+          [:edit, :update]
+        else
+          page.action
+        end
+      end.flatten
+
       resources resource_name.pluralize.to_sym,
-                only:      [:index],
+                only:      entity_routes,
                 controller:'/tramway/entities',
                 defaults:   { entity: entity }
     end
