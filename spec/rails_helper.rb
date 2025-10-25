@@ -15,6 +15,12 @@ require 'webdrivers/chromedriver'
 require 'database_cleaner/active_record'
 require 'support/web_driver_helper'
 
+if ActiveRecord::Migration.respond_to?(:maintain_test_schema!)
+  ActiveRecord::Migration.maintain_test_schema!
+elsif ActiveRecord::Migration.respond_to?(:check_pending!)
+  ActiveRecord::Migration.check_pending!
+end
+
 RSpec.configure do |config|
   config.use_active_record = false
   config.include ViewComponent::TestHelpers, type: :component

@@ -1,7 +1,7 @@
 install:
 	bundle
 	bundle exec appraisal install
-	lefthook install
+	bundle exec appraisal rails-7.2 ruby bin/prepare_dummy_test_db
 	npm install eslint @eslint/js
 
 eslint:

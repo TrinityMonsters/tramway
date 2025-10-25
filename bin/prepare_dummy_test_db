@@ -1,0 +1,81 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+ENV['RAILS_ENV'] ||= 'test'
+ENV['RACK_ENV'] ||= 'test'
+
+def sqlite_error?(error)
+  return false unless error.respond_to?(:message)
+
+  error.respond_to?(:name) && error.name == 'sqlite3' || error.message.include?('sqlite3')
+end
+
+def find_sqlite_error(error)
+  current = error
+
+  while current
+    return current if sqlite_error?(current)
+
+    current = current.cause if current.respond_to?(:cause)
+  end
+end
+
+def abort_with_sqlite_hint(error)
+  warn(error.message)
+  warn
+  warn 'SQLite3 must be available to prepare the dummy test database.'
+  warn 'Run this script through an Appraisal that depends on sqlite3, for example:'
+  warn '  bundle exec appraisal rails-7.2 ruby bin/prepare_dummy_test_db'
+  exit 1
+end
+
+def with_sqlite_guard
+  yield
+rescue LoadError, StandardError => e
+  sqlite_error = find_sqlite_error(e)
+  sqlite_error ? abort_with_sqlite_hint(sqlite_error) : raise
+end
+
+with_sqlite_guard do
+  require_relative '../spec/dummy/config/environment'
+
+  # Ensure the schema file is not rewritten when migrations run.
+  if ActiveRecord::Base.respond_to?(:dump_schema_after_migration=)
+    ActiveRecord::Base.dump_schema_after_migration = false
+  elsif defined?(Rails) && Rails.application.config.respond_to?(:active_record)
+    Rails.application.config.active_record.dump_schema_after_migration = false
+  end
+
+  migrations_paths =
+    if ActiveRecord::Migrator.respond_to?(:migrations_paths)
+      Array(ActiveRecord::Migrator.migrations_paths)
+    else
+      [Rails.root.join('db/migrate').to_s]
+    end
+
+  migration_context =
+    if ActiveRecord::Base.connection.respond_to?(:migration_context)
+      ActiveRecord::Base.connection.migration_context
+    elsif defined?(ActiveRecord::MigrationContext)
+      schema_migration =
+        if ActiveRecord::Base.connection.respond_to?(:schema_migration)
+          ActiveRecord::Base.connection.schema_migration
+        elsif ActiveRecord::Base.respond_to?(:schema_migration)
+          ActiveRecord::Base.schema_migration
+        end
+
+      schema_migration = nil unless schema_migration&.respond_to?(:create_table)
+
+      if schema_migration
+        ActiveRecord::MigrationContext.new(migrations_paths, schema_migration)
+      else
+        ActiveRecord::MigrationContext.new(migrations_paths)
+      end
+    end
+
+  if migration_context
+    migration_context.migrate
+  else
+    ActiveRecord::Migrator.migrate(migrations_paths)
+  end
+end
