@@ -4,7 +4,7 @@ module Tailwinds
   module Form
     module Multiselect
       # Renders input as select
-      class SelectAsInput < Tramway::BaseComponent
+      class SelectAsInputComponent < Tramway::BaseComponent
         option :options
         option :attribute
         option :input

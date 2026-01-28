@@ -21,6 +21,10 @@ describe UserForm do
 
         expect(described_class.properties).to include(:email)
       end
+
+      it 'raises error when using reserved name' do
+        expect { described_class.property(:fields) }.to raise_error(ArgumentError)
+      end
     end
 
     describe '#submit' do

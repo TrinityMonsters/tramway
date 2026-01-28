@@ -1,10 +1,13 @@
-.mb-4
+.mb-4.relative
   - if @label
     = component('tailwinds/form/label', for: @for) do
       = @label
-  %div{ class: wrapper_classes, data: multiselect_hash, id: "#{@for}_multiselect" }
-    .min-w-96.w-fit
-      %div{ class: dropdown_classes, data: { "multiselect-target" => "dropdown" } }
-        .flex.flex-auto.flex-wrap{ data: { "multiselect-target" => "showSelectedArea" } }
-        %div{ class: dropdown_indicator_classes }
-          ^
+  %div{ role: :combobox, data: multiselect_hash, id: "#{@for}_multiselect" }
+    - classes = "#{size_class(:multiselect_input)} #{select_base_classes}"
+    .flex.flex-end.justify-between{ data: { "multiselect-target" => "dropdown" }, **@options.merge(class: classes) }
+      .flex.flex-row.flex-nowrap.overflow-x-auto.space-x-1{ data: { "multiselect-target" => "showSelectedArea" } }
+      .flex.flex-col.justify-center
+        .caret-down{ data: { "multiselect-target" => "caretDown" } }
+          = component 'tailwinds/form/multiselect/caret', size: size, direction: :down
+        .caret-up.hidden{ data: { "multiselect-target" => "caretUp" } }
+          = component 'tailwinds/form/multiselect/caret', size: size, direction: :up

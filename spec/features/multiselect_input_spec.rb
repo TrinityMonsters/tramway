@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+
 feature 'MultiselectComponent', :js, type: :feature do
   before do
     visit new_user_path
@@ -19,8 +20,7 @@ feature 'MultiselectComponent', :js, type: :feature do
   end
 
   scenario 'allows user to select multiple options' do
-    find('.mx-2.leading-6', text: 'Admin').click
-    find('.mx-2.leading-6', text: 'User').click
+    multiselect 'Admin', 'User', from: 'user_role'
 
     expect(page).to have_selector('.text-xs.font-normal.leading-none.max-w-full.flex-initial', text: 'Admin')
     expect(page).to have_selector('.text-xs.font-normal.leading-none.max-w-full.flex-initial', text: 'User')

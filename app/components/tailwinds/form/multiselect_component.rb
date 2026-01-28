@@ -14,8 +14,17 @@ module Tailwinds
 
       def multiselect_hash
         {
-          controller:, selected_item_template:, multiselect_selected_items_value:, dropdown_container:, item_container:,
-          items:, action:, select_as_input:, placeholder:, value:, on_change:
+          controller:,
+          selected_item_template:,
+          multiselect_selected_items_value:,
+          dropdown_container:,
+          item_container:,
+          items:,
+          action:,
+          select_as_input:,
+          placeholder:,
+          value:,
+          on_change:
         }.transform_keys { |key| key.to_s.gsub('_', '-') }
       end
 
@@ -24,24 +33,6 @@ module Tailwinds
         controllers << external_action.split('->').last.split('#').first if external_action
         controllers += external_controllers
         controllers.join(' ')
-      end
-
-      def wrapper_classes
-        theme_classes(
-          classic: 'flex flex-col relative text-gray-200'
-        )
-      end
-
-      def dropdown_classes
-        theme_classes(
-          classic: 'p-1 flex border rounded-xl border-gray-700 bg-gray-900 shadow-inner'
-        )
-      end
-
-      def dropdown_indicator_classes
-        theme_classes(
-          classic: 'w-8 py-1 pl-2 pr-1 border-l flex items-center text-gray-500 border-gray-700'
-        )
       end
 
       private
@@ -63,13 +54,12 @@ module Tailwinds
       end
 
       def select_as_input
-        render(
-          Tailwinds::Form::Multiselect::SelectAsInput.new(
-            options:,
-            attribute:,
-            input:,
-            size_class: size_class(:multiselect_input)
-          )
+        component(
+          'tailwinds/form/multiselect/select_as_input',
+          options:,
+          attribute:,
+          input:,
+          size_class: size_class(:multiselect_input)
         )
       end
 
@@ -87,29 +77,17 @@ module Tailwinds
         options.dig(:data, :action)
       end
 
-      def method_missing(method_name, *, &)
-        component = component_name(method_name)
-
-        if method_name.to_s.include?('_') && Object.const_defined?(component)
-          render(component.constantize.new(*, &))
-        else
-          super
-        end
+      def selected_item_template
+        component('tailwinds/form/multiselect/selected_item_template', size:)
       end
 
-      def respond_to_missing?(method_name, include_private = false)
-        if method_name.to_s.include?('_') && Object.const_defined?(component_name(method_name))
-          true
-        else
-          super
-        end
+      def dropdown_container
+        component('tailwinds/form/multiselect/dropdown_container', size:)
       end
 
-      # :reek:UtilityFunction { enabled: false }
-      def component_name(method_name)
-        "Tailwinds::Form::Multiselect::#{method_name.to_s.camelize}"
+      def item_container
+        component('tailwinds/form/multiselect/item_container', size:)
       end
-      # :reek:UtilityFunction { enabled: true }
     end
   end
 end
